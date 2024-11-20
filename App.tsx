@@ -18,6 +18,7 @@ import ListaCompradores from './screens/listaComprador';
 import Ordenha from './screens/ordenha';
 import ListaOrdenhas from './screens/listaOrdenha';
 import Vendas from './screens/vendas';
+import ListaVendas from './screens/listaVendas';
 
 type RootStackParamList = {
   Main: undefined;
@@ -31,6 +32,7 @@ type RootStackParamList = {
   Ordenha: undefined;
   ListaOrdenhas: undefined;
   Vendas: undefined;
+  ListaVendas: undefined;
 };
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
@@ -58,6 +60,7 @@ function App() {
         <Stack.Screen name="Ordenha" component={Ordenha} />
         <Stack.Screen name="ListaOrdenhas" component={ListaOrdenhas} />
         <Stack.Screen name="Vendas" component={Vendas} />
+        <Stack.Screen name="ListaVendas" component={ListaVendas} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,8 +1,11 @@
 // Home.tsx
 import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, Image } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+//import icone
+import iconeCadAnimal from '../assets/iconeHome.png';
+
 
 type RootStackParamList = {
   CadastroAnimal: undefined;
@@ -20,6 +23,12 @@ type Props = {
 export default function Home({ navigation }: Props) {
   return (
     <View style={styles.container}>
+      {/* Cabeçalho */}
+      <View style={styles.headerback} />
+      <View style={styles.header}>
+        <Image source={iconeCadAnimal} style={styles.icon} />
+        <Text style={styles.textHeader}>AGROLEITE</Text>
+      </View>
 
       <View style={styles.section1}>
         <Text style={styles.title}>Cadastro</Text>
@@ -59,5 +68,41 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  headerback: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 180,
+    backgroundColor: '#929090',
+    borderRadius: 16,
+  },
+  header: {
+    position: 'absolute',
+    top: 0, 
+    left: 0,
+    right: 0,
+    height: 160,
+    backgroundColor: '#3CB69A',
+    borderRadius: 16,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  icon: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+  },
+  textHeader: {
+    position: 'absolute',
+    top: 120,
+    left: 16,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    alignSelf: 'center',
   },
 });

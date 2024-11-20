@@ -77,9 +77,9 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: 20, // Ajuste a posição conforme necessário
-    left: 20, // Ajuste a posição conforme necessário
-    right: 20, // Ajuste a posição conforme necessário
+    top: 0, // Ajuste a posição conforme necessário
+    left: 0, // Ajuste a posição conforme necessário
+    right: 0, // Ajuste a posição conforme necessário
     height: 160,
     backgroundColor: '#A2D8E3',
     borderRadius: 16,
@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   icon: {
-    width: 100,
-    height: 100,
+    width: 200,
+    height: 200,
     resizeMode: 'contain',
     alignSelf: 'flex-start',
   },

@@ -1,33 +1,34 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import iconeAnimal from '../assets/iconeCadAnimal.png';
+import iconeVendas from '../assets/IconeVendas.png';
 
 type RootStackParamList = {
-  ListaAnimais: {
-    nomeAnimal?: string;
-    dataNascimento?: string;
-    sexo?: string;
-    classificacaoEtaria?: string;
+  ListaVendas: {
+    dataHora?: string;
+    nomeComprador?: string;
+    quantidadeLitros?: string;
+    valorLitro?: string;
+    totalVenda?: string;
     observacoes?: string;
     fromSaveButton?: boolean;
   };
 };
 
-type ListaAnimaisScreenRouteProp = RouteProp<RootStackParamList, 'ListaAnimais'>;
+type ListaVendasScreenRouteProp = RouteProp<RootStackParamList, 'ListaVendas'>;
 
 type Props = {
-  route: ListaAnimaisScreenRouteProp;
+  route: ListaVendasScreenRouteProp;
 };
 
 const data = [
   // Exemplo de dados, você pode substituir pelos dados reais
-  { key: '1', nomeAnimal: 'Bessie', dataNascimento: '2020-01-01', sexo: 'F', classificacaoEtaria: 'Adulto', observacoes: '' },
-  { key: '2', nomeAnimal: 'Daisy', dataNascimento: '2021-02-02', sexo: 'F', classificacaoEtaria: 'Jovem', observacoes: '' },
+  { key: '1', dataHora: '2023-01-01', nomeComprador: 'João', quantidadeLitros: '10', totalVenda: '100', observacoes: '' },
+  { key: '2', dataHora: '2023-01-02', nomeComprador: 'Maria', quantidadeLitros: '15', totalVenda: '150', observacoes: '' },
   // Adicione mais dados conforme necessário
 ];
 
-export default function ListaAnimais({ route }: Props) {
+export default function ListaVendas({ route }: Props) {
   const { fromSaveButton } = route.params || {};
 
   return (
@@ -35,27 +36,27 @@ export default function ListaAnimais({ route }: Props) {
       {/* Cabeçalho */}
       <View style={styles.headerback} />
       <View style={styles.header}>
-        <Image source={iconeAnimal} style={styles.icon} />
+        <Image source={iconeVendas} style={styles.icon} />
         {fromSaveButton && <Text style={styles.successMessage}>Salvo com sucesso!</Text>}
       </View>
 
       {/* Corpo */}
       <View style={styles.body}>
         <View style={styles.tableHeader}>
-          <Text style={styles.tableHeaderText}>Nome</Text>
-          <Text style={styles.tableHeaderText}>Nascimento</Text>
-          <Text style={styles.tableHeaderText}>Sexo</Text>
-          <Text style={styles.tableHeaderText}>Classificação</Text>
+          <Text style={styles.tableHeaderText}>Data</Text>
+          <Text style={styles.tableHeaderText}>Comprador</Text>
+          <Text style={styles.tableHeaderText}>(L)</Text>
+          <Text style={styles.tableHeaderText}>Total</Text>
           <Text style={styles.tableHeaderText}></Text>
         </View>
         <FlatList
           data={data}
           renderItem={({ item }) => (
             <View style={styles.tableRow}>
-              <Text style={styles.tableCell}>{item.nomeAnimal}</Text>
-              <Text style={styles.tableCell}>{item.dataNascimento}</Text>
-              <Text style={styles.tableCell}>{item.sexo}</Text>
-              <Text style={styles.tableCell}>{item.classificacaoEtaria}</Text>
+              <Text style={styles.tableCell}>{item.dataHora}</Text>
+              <Text style={styles.tableCell}>{item.nomeComprador}</Text>
+              <Text style={styles.tableCell}>{item.quantidadeLitros}</Text>
+              <Text style={styles.tableCell}>{item.totalVenda}</Text>
               <Text style={styles.tableCell}>{item.observacoes}</Text>
             </View>
           )}
@@ -93,8 +94,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   icon: {
-    width: 200,
-    height: 200,
+    width: 170,
+    height: 170,
     resizeMode: 'contain',
     alignSelf: 'flex-start',
   },
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
-    marginTop: 200, // Ajuste conforme necessário para evitar sobreposição com o cabeçalho
+    marginTop: 200, 
   },
   tableHeader: {
     flexDirection: 'row',
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
   },
   tableHeaderText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: 'bold' ,
     flex: 1,
     textAlign: 'center',
   },

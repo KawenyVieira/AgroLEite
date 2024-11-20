@@ -94,9 +94,9 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: 0, // Ajuste a posição conforme necessário
-    left: 0, // Ajuste a posição conforme necessário
-    right: 0, // Ajuste a posição conforme necessário
+    top: 0, 
+    left: 0, 
+    right: 0, 
     height: 160,
     backgroundColor: '#A2D8E3',
     borderRadius: 16,

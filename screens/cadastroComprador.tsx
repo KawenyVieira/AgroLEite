@@ -59,8 +59,8 @@ export default function CadastroComprador({ navigation }: Props) {
           style={styles.input}
           onValueChange={(itemValue) => setClassificacaoComprador(itemValue)}
         >
-          <Picker.Item label="Pessoa Física" value="Pessoa Física" />
-          <Picker.Item label="Pessoa Jurídica" value="Pessoa Jurídica" />
+          <Picker.Item label="PF" value="PF" />
+          <Picker.Item label="PJ" value="PJ" />
         </Picker>
 
         <Text style={styles.label}>Valor Médio de Venda por Litro</Text>
@@ -76,13 +76,20 @@ export default function CadastroComprador({ navigation }: Props) {
       {/* Rodapé */}
       <View style={styles.footer}>
         <Button
-          title="Salvar"
-          onPress={() => navigation.navigate('CompradorSalvo', {
-            nomeComprador,
-            classificacaoComprador,
-          })}
-        />
-        <Button title="Lista de Compradores" onPress={() => navigation.navigate('ListaCompradores')} />
+        title="Salvar"
+        onPress={() => navigation.navigate('ListaCompradores', {
+          nomeComprador,
+          telefoneComprador,
+          classificacaoComprador,
+          valorMedioVenda,
+          fromSaveButton: true,
+        })}
+      />
+      <Button
+        title="Lista de Compradores"
+        onPress={() => navigation.navigate('ListaCompradores', {
+          fromSaveButton: false,
+        })} />
       </View>
     </View>
   );
