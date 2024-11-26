@@ -24,11 +24,11 @@ type RootStackParamList = {
   Main: undefined;
   Home: undefined;
   CadastroAnimal: undefined;
-  AnimalSalvo: undefined;
-  ListaAnimais: undefined;
+  AnimalSalvo: { nomeAnimal: string; classificacaoEtaria: string };
+  ListaAnimais: { fromSaveButton: boolean };
   CadastroComprador: undefined;
-  CompradorSalvo: undefined;
-  ListaCompradores: undefined;
+  CompradorSalvo: { nomeComprador: string; classificacaoComprador: string };
+  ListaCompradores: { fromSaveButton: boolean };
   Ordenha: undefined;
   ListaOrdenhas: undefined;
   Vendas: undefined;
@@ -69,8 +69,8 @@ function App() {
 function MainScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
-      <Text>Bem Vindo ao AgroLeite</Text>
-      <Text>Aplicativo de gestao de Vendas</Text>
+      <Text style={styles.texto}>Bem Vindo ao AgroLeite</Text>
+      <Text style={styles.texto}>Aplicativo de gestao de Vendas</Text>
       <Image source={iconeHome} style={styles.image} />
       <Button title="INICIAR" onPress={() => navigation.navigate('Home')} />
       <StatusBar style="auto" />
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    padding: 10,
     backgroundColor: '#3CB69A',
   },
   image: {
@@ -92,6 +92,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginBottom: 16,
   },
+  texto:{
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#fff',
+  }
 });
 
 export default App;

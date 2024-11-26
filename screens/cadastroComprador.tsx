@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Image } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { StyleSheet, Text, View, TextInput, Button, Image, ScrollView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+//import detalhes graficos
+import styles from '../styles/styles'; 
 import iconeComprador from '../assets/iconeCadComp.png';
 
 type RootStackParamList = {
   CadastroComprador: undefined;
   CompradorSalvo: { nomeComprador: string; classificacaoComprador: string };
-  ListaCompradores: undefined;
+  ListaCompradores: { fromSaveButton: boolean };
 };
 
 type CadastroCompradorScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CadastroComprador'>;
@@ -23,10 +26,25 @@ type Props = {
 export default function CadastroComprador({ navigation }: Props) {
   const [nomeComprador, setNomeComprador] = useState('');
   const [telefoneComprador, setTelefoneComprador] = useState('');
-  const [classificacaoComprador, setClassificacaoComprador] = useState('');
+  const [classificacaoComprador, setClassificacaoComprador] = useState('PJ');
   const [valorMedioVenda, setValorMedioVenda] = useState('');
 
+  const saveComprador = async () => {
+    try {
+      const existingCompradores = await AsyncStorage.getItem('compradores');
+      const compradores = existingCompradores ? JSON.parse(existingCompradores) : [];
+      const newComprador = { nomeComprador, telefoneComprador, classificacaoComprador, valorMedioVenda };
+      compradores.push(newComprador);
+      await AsyncStorage.setItem('compradores', JSON.stringify(compradores));
+      navigation.navigate('CompradorSalvo', { nomeComprador, classificacaoComprador });
+    } catch (e) {
+      // saving error
+      console.error(e);
+    }
+  };
+
   return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View style={styles.container}>
       {/* Cabeçalho */}
       <View style={styles.headerback} />
@@ -54,14 +72,16 @@ export default function CadastroComprador({ navigation }: Props) {
         />
 
         <Text style={styles.label}>Classificação do Comprador</Text>
-        <Picker
-          selectedValue={classificacaoComprador}
-          style={styles.input}
-          onValueChange={(itemValue) => setClassificacaoComprador(itemValue)}
-        >
-          <Picker.Item label="PF" value="PF" />
-          <Picker.Item label="PJ" value="PJ" />
-        </Picker>
+        <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={classificacaoComprador}
+              onValueChange={(itemValue) => setClassificacaoComprador(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Pessoa Fisica" value="PF" />
+              <Picker.Item label="Pessoa Juridica" value="PJ" />
+            </Picker>
+        </View>
 
         <Text style={styles.label}>Valor Médio de Venda por Litro</Text>
         <TextInput
@@ -75,77 +95,10 @@ export default function CadastroComprador({ navigation }: Props) {
 
       {/* Rodapé */}
       <View style={styles.footer}>
-        <Button
-        title="Salvar"
-        onPress={() => navigation.navigate('ListaCompradores', {
-          nomeComprador,
-          telefoneComprador,
-          classificacaoComprador,
-          valorMedioVenda,
-          fromSaveButton: true,
-        })}
-      />
-      <Button
-        title="Lista de Compradores"
-        onPress={() => navigation.navigate('ListaCompradores', {
-          fromSaveButton: false,
-        })} />
+        <Button title="Salvar" onPress={saveComprador} />
+        <Button title="Lista de Compradores" onPress={() => navigation.navigate('ListaCompradores', { fromSaveButton: false })} />
       </View>
     </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  headerback: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 180,
-    backgroundColor: '#929090',
-    borderRadius: 16,
-  },
-  header: {
-    position: 'absolute',
-    top: 0, // Ajuste a posição conforme necessário
-    left: 0, // Ajuste a posição conforme necessário
-    right: 0, // Ajuste a posição conforme necessário
-    height: 160,
-    backgroundColor: '#A2D8E3',
-    borderRadius: 16,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  icon: {
-    width: 200,
-    height: 200,
-    resizeMode: 'contain',
-    alignSelf: 'flex-start',
-  },
-  body: {
-    flex: 1,
-    marginTop: 190, // Ajuste conforme necessário para evitar sobreposição com o cabeçalho
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  input: {
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-});

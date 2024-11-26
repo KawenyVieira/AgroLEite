@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Image } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { StyleSheet, Text, View, TextInput, Button, Image, ScrollView, TouchableOpacity} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker'; 
+
+
+
+//import detalhes graficos
 import iconeCadAnimal from '../assets/iconeCadAnimal.png';
+import styles from '../styles/styles'; 
 
 type RootStackParamList = {
   CadastroAnimal: undefined;
   AnimalSalvo: { nomeAnimal: string; classificacaoEtaria: string };
-  ListaAnimais: undefined;
+  ListaAnimais: { fromSaveButton: boolean };
 };
 
 type CadastroAnimalScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CadastroAnimal'>;
@@ -21,9 +28,40 @@ type Props = {
 
 export default function CadastroAnimal({ navigation }: Props) {
   const [nomeAnimal, setNomeAnimal] = useState('');
-  const [classificacaoEtaria, setClassificacaoEtaria] = useState('');
+  const [dataNascimento, setDataNascimento] = useState(new Date());
+  const [sexo, setSexo] = useState('F');
+  const [classificacaoEtaria, setClassificacaoEtaria] = useState('Vaca');
+  const [observacoes, setObservacoes] = useState('');
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const saveAnimal = async () => {
+    try {
+      const existingAnimals = await AsyncStorage.getItem('animals');
+      const animals = existingAnimals ? JSON.parse(existingAnimals) : [];
+      const newAnimal = { nomeAnimal, dataNascimento, sexo, classificacaoEtaria, observacoes };
+      animals.push(newAnimal);
+      await AsyncStorage.setItem('animals', JSON.stringify(animals));
+      navigation.navigate('AnimalSalvo', { nomeAnimal, classificacaoEtaria });
+    } catch (e) {
+      // saving error
+      console.error(e);
+    }
+  };
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    setDataNascimento(date);
+    hideDatePicker();
+  };
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View style={styles.container}>
       {/* Cabeçalho */}
       <View style={styles.headerback} />
@@ -42,93 +80,64 @@ export default function CadastroAnimal({ navigation }: Props) {
         />
 
         <Text style={styles.label}>Data de nascimento do animal</Text>
-        <TextInput style={styles.input} placeholder="Digite a data de nascimento" />
+          <TouchableOpacity onPress={showDatePicker}>
+            <View style={styles.dateInput}>
+              <Text>{dataNascimento.toISOString().split('T')[0]}</Text>
+            </View>
+          </TouchableOpacity>
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible}
+            mode="date"
+            onConfirm={handleConfirm}
+            onCancel={hideDatePicker}
+          />
+
 
         <Text style={styles.label}>Sexo do Animal</Text>
-        <Picker style={styles.input}>
-          <Picker.Item label="F" value="F" />
-          <Picker.Item label="M" value="M" />
-        </Picker>
+        <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={sexo}
+              onValueChange={(itemValue) => setSexo(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Feminino" value="F" />
+              <Picker.Item label="Masculino" value="M" />
+            </Picker>
+        </View>
 
         <Text style={styles.label}>Classificação Etária</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite a classificação etária"
-          value={classificacaoEtaria}
-          onChangeText={setClassificacaoEtaria}
-        />
+        <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={classificacaoEtaria}
+              onValueChange={(itemValue) => setClassificacaoEtaria(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Bezerro" value="Bezerro" />
+              <Picker.Item label="Novilha" value="Novilha" />
+              <Picker.Item label="Garrote" value="Garrote" />
+              <Picker.Item label="Vaca" value="Vaca" />
+              <Picker.Item label="Boi" value="Boi" />
+            </Picker>
+        </View>
 
         <Text style={styles.label}>Observações</Text>
-        <TextInput style={styles.input} placeholder="Digite as observações" />
+        <TextInput
+          style={styles.input}
+          placeholder="Digite as observações"
+          value={observacoes}
+          onChangeText={setObservacoes}
+        />
       </View>
 
       {/* Rodapé */}
       <View style={styles.footer}>
-        <Button
-          title="Salvar"
-          onPress={() => navigation.navigate('AnimalSalvo', {
-            nomeAnimal,
-            classificacaoEtaria,
-          })}
-        />
-        <Button title="Lista de Animais" onPress={() => navigation.navigate('ListaAnimais')} />
+        <Button title="Salvar" onPress={saveAnimal} />
+        <Button title="Lista de Animais" 
+        onPress={() => navigation.navigate('ListaAnimais', 
+        { fromSaveButton: false })} />
       </View>
     </View>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    // backgroundColor: '#C2BFBF',
-  },
-  headerback: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 180,
-    backgroundColor: '#929090',
-    borderRadius: 16,
-  },
-  header: {
-    position: 'absolute',
-    top: 0, 
-    left: 0, 
-    right: 0, 
-    height: 160,
-    backgroundColor: '#A2D8E3',
-    borderRadius: 16,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  icon: {
-    width: 200,
-    height: 200,
-    resizeMode: 'contain',
-    alignSelf: 'flex-start',
-  },
-  body: {
-    flex: 1,
-    marginTop: 180, // Ajuste conforme necessário para evitar sobreposição com o cabeçalho
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  input: {
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-});

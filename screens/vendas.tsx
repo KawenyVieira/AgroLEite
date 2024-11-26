@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
+//import detalhes graficos
+import styles from '../styles/styles'; 
 import iconeVendas from '../assets/IconeVendas.png';
 
 type RootStackParamList = {
   Vendas: undefined;
-  ListaVendas: undefined;
+  ListaVendas: { fromSaveButton: boolean };
 };
 
 type VendasScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Vendas'>;
@@ -18,19 +24,48 @@ type Props = {
 };
 
 export default function Vendas({ navigation }: Props) {
-  const [dataHora, setDataHora] = useState('');
+  const [dataHora, setDataHora] = useState(new Date());
   const [nomeComprador, setNomeComprador] = useState('');
   const [quantidadeLitros, setQuantidadeLitros] = useState('');
   const [valorLitro, setValorLitro] = useState('');
-  const [totalVenda, setTotalVenda] = useState('');
+  const [totalVenda, setTotalVenda] = useState('0,00');
   const [observacoes, setObservacoes] = useState('');
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+//Operacao matematica para total de vendas
   useEffect(() => {
     const total = parseFloat(quantidadeLitros) * parseFloat(valorLitro);
     setTotalVenda(total ? total.toFixed(2) : '');
   }, [quantidadeLitros, valorLitro]);
 
+  const saveVenda = async () => {
+    try {
+      const existingVendas = await AsyncStorage.getItem('vendas');
+      const vendas = existingVendas ? JSON.parse(existingVendas) : [];
+      const newVenda = { dataHora, nomeComprador, quantidadeLitros, valorLitro, totalVenda, observacoes };
+      vendas.push(newVenda);
+      await AsyncStorage.setItem('vendas', JSON.stringify(vendas));
+      navigation.navigate('ListaVendas', { fromSaveButton: true });
+    } catch (e) {
+      // saving error
+      console.error(e);
+    }
+  };
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    setDataHora(date);
+    hideDatePicker();
+  };
+
   return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View style={styles.container}>
       {/* Cabeçalho */}
       <View style={styles.headerback} />
@@ -40,13 +75,18 @@ export default function Vendas({ navigation }: Props) {
 
       {/* Corpo */}
       <View style={styles.body}>
-        <Text style={styles.label}>Data </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite a data"
-          value={dataHora}
-          onChangeText={setDataHora}
-        />
+        <Text style={styles.label}>Data da venda</Text>
+        <TouchableOpacity onPress={showDatePicker}>
+            <View style={styles.dateInput}>
+              <Text>{dataHora.toISOString().split('T')[0]}</Text>
+            </View>
+          </TouchableOpacity>
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible}
+            mode="date"
+            onConfirm={handleConfirm}
+            onCancel={hideDatePicker}
+          />
 
         <Text style={styles.label}>Nome do Comprador</Text>
         <TextInput
@@ -99,91 +139,10 @@ export default function Vendas({ navigation }: Props) {
 
       {/* Rodapé */}
       <View style={styles.footer}>
-        <Button
-          title="Salvar"
-          onPress={() => navigation.navigate('ListaVendas', {
-            dataHora,
-            nomeComprador,
-            quantidadeLitros,
-            valorLitro,
-            totalVenda,
-            observacoes,
-            fromSaveButton: true,
-          })}
-        />
-        <Button
-          title="Lista de Vendas"
-          onPress={() => navigation.navigate('ListaVendas', {
-            fromSaveButton: false,
-          })}
-        />
+        <Button title="Salvar" onPress={saveVenda} />
+        <Button title="Lista de Vendas" onPress={() => navigation.navigate('ListaVendas', { fromSaveButton: false })} />
       </View>
     </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  headerback: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 180,
-    backgroundColor: '#929090',
-    borderRadius: 16,
-  },
-  header: {
-    position: 'absolute',
-    top: 0, 
-    left: 0, 
-    right: 0,
-    height: 160,
-    backgroundColor: '#A2D8E3',
-    borderRadius: 16,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  icon: {
-    width: 170,
-    height: 170,
-    resizeMode: 'contain',
-    alignSelf: 'flex-start',
-  },
-  body: {
-    flex: 1,
-    marginTop: 180, // Ajuste conforme necessário para evitar sobreposição com o cabeçalho
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  textArea: {
-    height: 100,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  column: {
-    flex: 1,
-    marginRight: 8,
-  },
-});
